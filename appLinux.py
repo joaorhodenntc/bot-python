@@ -6,7 +6,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from telegram import Bot
 from telegram.constants import ParseMode
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 import asyncio
 import re
 
@@ -114,9 +113,6 @@ async def main():
                     
         except Exception as e:
             print(f"Erro ao acessar os dados: {e}")
-
-        # Aguarda 1 segundo antes de verificar novamente
-        await asyncio.sleep(1)
 
 if __name__ == '__main__':
     asyncio.run(main())
