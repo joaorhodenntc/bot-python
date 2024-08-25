@@ -5,6 +5,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import psutil
+
+def monitor_resources():
+    # Monitorar o uso de CPU e memória
+    cpu_usage = psutil.cpu_percent(interval=1)
+    memory_info = psutil.virtual_memory()
+    print(f"Uso de CPU: {cpu_usage}%")
+    print(f"Uso de Memória: {memory_info.percent}%")
 
 chrome_options = Options()
 chrome_options.add_argument("--headless")
@@ -39,6 +47,9 @@ while True:
 
     except Exception as e:
         print(f"Erro ao acessar os dados: {e}")
+
+    # Monitorar o uso de recursos
+    monitor_resources()
 
     # Aguarda 1 segundo antes de verificar novamente
     time.sleep(1)
