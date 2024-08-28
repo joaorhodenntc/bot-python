@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const TelegramBot = require('node-telegram-bot-api');
+const os = require('os');
 
 const token = '7346261146:AAERS6EyX2kU4ATsJ0IVZPwy2or65i5uwDE';
 const chat_bot = '-1002235800968';
@@ -119,6 +120,22 @@ bot.onText(/\/start/, () => {
 
   };
 
+  const monitorSystemUsage = () => {
+    const totalMemory = os.totalmem();
+    const freeMemory = os.freemem();
+    const usedMemory = totalMemory - freeMemory;
+    const memoryUsagePercent = (usedMemory / totalMemory) * 100;
+
+    const cpus = os.cpus();
+    const idle = cpus.reduce((acc, cpu) => acc + cpu.times.idle, 0);
+    const total = cpus.reduce((acc, cpu) => acc + Object.values(cpu.times).reduce((a, b) => a + b, 0), 0);
+    const cpuUsagePercent = 100 - (idle / total) * 100;
+
+    console.log(`Uso de CPU: ${cpuUsagePercent.toFixed(2)}%`);
+    console.log(`Uso de Memória: ${memoryUsagePercent.toFixed(2)}%`);
+  };
+
   setInterval(checkForUpdates, 1000);
+  setInterval(monitorSystemUsage, 5000);
 
 })();
