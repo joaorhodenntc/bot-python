@@ -136,6 +136,6 @@ bot.onText(/\/start/, () => {
   };
 
   setInterval(checkForUpdates, 1000);
-  setInterval(monitorSystemUsage, 5000);
+  setInterval(monitorSystemUsage, 10000);
 
 })();
