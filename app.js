@@ -136,17 +136,7 @@ bot.onText(/\/start/, () => {
     console.log(`Uso de Memoria: ${memoryUsagePercent.toFixed(2)}%`);
   };
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  rl.on('line', (input) => {
-    if (input.trim() === 'status') {
-      monitorSystemUsage();
-    }
-  });
-
   setInterval(checkForUpdates, 1000);
+  setInterval(monitorSystemUsage, 20000);
 
 })();
