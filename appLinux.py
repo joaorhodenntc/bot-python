@@ -70,6 +70,7 @@ def monitor_resources():
 
 
 lastMainMessageId  = None
+lastAvisoMessageId = None
 ultimo_horario = None
 menores_consecutivos = 0
 maiores_consecutivos = 0
@@ -102,7 +103,9 @@ async def main():
                 ultimo_numero = float(ultimo_numero_str)
                 ultimo_horario = cell_date
                 print(f"\nResultado: {cell_result}")
-               
+                if lastAvisoMessageId:
+                    await bot.delete_message(chat_id=chat_id, message_id=lastAvisoMessageId)
+
                 if ultimo_numero < 2.00:
                     menores_consecutivos += 1
                     maiores_consecutivos = 0
@@ -128,6 +131,9 @@ async def main():
 
                     maiores_consecutivos += 1
                     menores_consecutivos = 0
+
+                if menores_consecutivos == qtdRepeticoes-1:
+                    lastAvisoMessageId = await enviar_mensagem_telegram(chat_id, f"Atentos! Possível entrada 🚨")
 
                 if menores_consecutivos == qtdRepeticoes:
                     lastMainMessageId = await enviar_mensagem_telegram(chat_id, f"Realizar entrada após o {cell_result}")
