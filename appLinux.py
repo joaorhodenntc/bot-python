@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from telegram import Bot
 from telegram.constants import ParseMode
+from datetime import datetime
 import asyncio
 import re
 import psutil
@@ -53,12 +54,39 @@ async def enviar_placar_atual():
             print('Erro ao excluir a mensagem anterior do placar:', e)
 
     mensagem = (
-        f"🚀 *Placar do dia:* 🟢 {greensSG + greensG1 + greensG2}  🔴 {reds}\n\n"
+        f"🚀 *Placar do dia:* 🟢 {greensSG + greensG1 + greensG2 + greensG3 + greensG4 + greensG5}  🔴 {reds}\n\n"
         f"💰 *Estamos com {greensConsecutivos} Greens seguidos!*"
     )
     
 
     last_placar_message_id = await enviar_mensagem_telegram(chat_id, mensagem)
+
+async def enviar_placar_diario():
+    global greensConsecutivos, greensSG, greensG1, greensG2, greensG3, greensG4, greensG5, reds, last_placar_message_id
+    
+    now = datetime.now()
+    print(f"Horário agora: {now}")
+
+    if now.hour == 23 and now.minute == 59:
+        mensagem = (
+            f"🚀 *Placar final do dia:* 🟢 {greensSG + greensG1 + greensG2 + greensG3 + greensG4 + greensG5}  🔴 {reds}\n\n"
+            f"💰 *Consecutivos hoje:* {greensConsecutivos}\n"
+            f"SG: {greensSG}, G1: {greensG1}, G2: {greensG2}, G3: {greensG3}, G4: {greensG4}, G5: {greensG5}\n"
+            f"Reds: {reds}"
+        )
+
+        last_placar_message_id = await enviar_mensagem_telegram(chat_id, mensagem)
+
+    elif now.hour == 0 and now.minute == 0:
+        greensConsecutivos = 0
+        greensSG = 0
+        greensG1 = 0
+        greensG2 = 0
+        greensG3 = 0
+        greensG4 = 0
+        greensG5 = 0
+        reds = 0
+        print("Variáveis resetadas para o novo dia.")
 
 
 def monitor_resources():
@@ -184,6 +212,7 @@ async def main():
                     greensConsecutivos = 0
 
                 monitor_resources()
+                await enviar_placar_diario()
 
         except Exception as e:
             print(f"Erro ao acessar os dados: {e}")

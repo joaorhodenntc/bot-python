@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from telegram import Bot
 from telegram.constants import ParseMode
+from datetime import datetime
 import asyncio
 import re
 import psutil
@@ -53,12 +54,36 @@ async def enviar_placar_atual():
             print('Erro ao excluir a mensagem anterior do placar:', e)
 
     mensagem = (
-        f"🚀 *Placar do dia:* 🟢 {greensSG + greensG1 + greensG2}  🔴 {reds}\n\n"
+        f"🚀 *Placar do dia:* 🟢 {greensSG + greensG1 + greensG2 + greensG3 + greensG4 + greensG5}  🔴 {reds}\n\n"
         f"💰 *Estamos com {greensConsecutivos} Greens seguidos!*"
     )
     
 
     last_placar_message_id = await enviar_mensagem_telegram(chat_id, mensagem)
+
+async def enviar_placar_diario():
+    global greensConsecutivos, greensSG, greensG1, greensG2, greensG3, greensG4, greensG5, reds, last_placar_message_id
+    
+    now = datetime.now()
+    print(f"Horário agora: {now}")
+
+    if now.hour == 23 and now.minute == 59:
+        mensagem = (
+            f"📊 *RELATÓRIO DO DIA ({now.day}/{now.month}/{now.year}):\n\n* 🟢 *GREENS:* {greensSG + greensG1 + greensG2 + greensG3 + greensG4 + greensG5}\n 🔴 *REDS:* {reds}\n\n"
+        )
+
+        last_placar_message_id = await enviar_mensagem_telegram(chat_id, mensagem)
+
+    elif now.hour == 0 and now.minute == 0:
+        greensConsecutivos = 0
+        greensSG = 0
+        greensG1 = 0
+        greensG2 = 0
+        greensG3 = 0
+        greensG4 = 0
+        greensG5 = 0
+        reds = 0
+        print("Variáveis resetadas para o novo dia.")
 
 
 def monitor_resources():
@@ -86,7 +111,7 @@ g2 = 0
 g3 = 0
 g4 = 0
 g5 = 0
-qtdRepeticoes = 2
+qtdRepeticoes = 6
 
 async def main():
     global ultimo_horario, menores_consecutivos, maiores_consecutivos, greensConsecutivos, lastMainMessageId, lastAvisoMessageId, greensSG, greensG1, greensG2, greensG3, greensG4, greensG5, reds, g1, g2, g3, g4, g5, qtdRepeticoes
@@ -119,37 +144,37 @@ async def main():
 
                 if ultimo_numero >= 2.00:
                     if menores_consecutivos == qtdRepeticoes:
-                        await enviar_mensagem_telegram(chat_id, f"GREEN SG ({ultimo_numero}) ✅", lastMainMessageId)
+                        await enviar_mensagem_telegram(chat_id, f"*GREEN SG* ({ultimo_numero}) ✅", lastMainMessageId)
                         greensSG += 1
                         greensConsecutivos +=1 
                         await enviar_placar_atual()
 
                     if menores_consecutivos == qtdRepeticoes+1:
-                        await enviar_mensagem_telegram(chat_id, f"GREEN G1 ({g1}) | ({ultimo_numero}) ✅", lastMainMessageId)            
+                        await enviar_mensagem_telegram(chat_id, f"*GREEN G1* ({g1}) | ({ultimo_numero}) ✅", lastMainMessageId)            
                         greensG1 += 1
                         greensConsecutivos +=1  
                         await enviar_placar_atual()
 
                     if menores_consecutivos == qtdRepeticoes+2:
-                        await enviar_mensagem_telegram(chat_id, f"GREEN G2 ({g1}) | ({g2}) | ({ultimo_numero}) ✅", lastMainMessageId)
+                        await enviar_mensagem_telegram(chat_id, f"*GREEN G2* ({g1}) | ({g2}) | ({ultimo_numero}) ✅", lastMainMessageId)
                         greensG2 += 1
                         greensConsecutivos +=1
                         await enviar_placar_atual()
 
                     if menores_consecutivos == qtdRepeticoes+3:
-                        await enviar_mensagem_telegram(chat_id, f"GREEN G3 ({g1}) | ({g2}) | ({g3}) | ({ultimo_numero}) ✅", lastMainMessageId)
+                        await enviar_mensagem_telegram(chat_id, f"*GREEN G3* ({g1}) | ({g2}) | ({g3}) | ({ultimo_numero}) ✅", lastMainMessageId)
                         greensG3 += 1
                         greensConsecutivos +=1
                         await enviar_placar_atual()
 
                     if menores_consecutivos == qtdRepeticoes+4:
-                        await enviar_mensagem_telegram(chat_id, f"GREEN G4 ({g1}) | ({g2}) | ({g3}) | ({g4}) | ({ultimo_numero}) ✅", lastMainMessageId)
+                        await enviar_mensagem_telegram(chat_id, f"*GREEN G4* ({g1}) | ({g2}) | ({g3}) | ({g4}) | ({ultimo_numero}) ✅", lastMainMessageId)
                         greensG4 += 1
                         greensConsecutivos +=1
                         await enviar_placar_atual()
 
                     if menores_consecutivos == qtdRepeticoes+5:
-                        await enviar_mensagem_telegram(chat_id, f"GREEN G5 ({g1}) | ({g2}) | ({g3}) | ({g4}) | ({g5}) |({ultimo_numero}) ✅", lastMainMessageId)
+                        await enviar_mensagem_telegram(chat_id, f"*GREEN G5* ({g1}) | ({g2}) | ({g3}) | ({g4}) | ({g5}) |({ultimo_numero}) ✅", lastMainMessageId)
                         greensG5 += 1
                         greensConsecutivos +=1
                         await enviar_placar_atual()
@@ -158,7 +183,7 @@ async def main():
                     menores_consecutivos = 0
 
                 if menores_consecutivos == qtdRepeticoes-1:
-                    lastAvisoMessageId = await enviar_mensagem_telegram(chat_id, f"Atentos! Possível entrada 🚨")
+                    lastAvisoMessageId = await enviar_mensagem_telegram(chat_id, f"*Atentos! Possível entrada 🚨*\n" f"[ABRIR JOGO](https://www.playpix.com/pb/casino/game-view/806666/aviator)")
 
                 if menores_consecutivos == qtdRepeticoes:
                     lastMainMessageId = await enviar_mensagem_telegram(chat_id, f"🚀 *ENTRADA CONFIRMADA!*\n\n" f"👉 Entrar após: *{cell_result}*\n" f"💰 Sair em 2.00x\n" f"♻️ Até 5º Gales\n\n" f"[CLIQUE AQUI PARA JOGAR](https://www.playpix.com/pb/casino/game-view/806666/aviator)")
@@ -184,6 +209,7 @@ async def main():
                     greensConsecutivos = 0
 
                 monitor_resources()
+                await enviar_placar_diario()
 
         except Exception as e:
             print(f"Erro ao acessar os dados: {e}")
