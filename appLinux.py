@@ -6,13 +6,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from telegram import Bot
 from telegram.constants import ParseMode
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 import asyncio
 import re
+import psutil
 
 TOKEN = '7346261146:AAERS6EyX2kU4ATsJ0IVZPwy2or65i5uwDE'
 chat_id = '-1002235800968'
 bot = Bot(token=TOKEN)
+
+last_placar_message_id = None
 
 chrome_options = Options()
 chrome_options.add_argument("--headless")
@@ -39,6 +41,32 @@ async def enviar_mensagem_telegram(chat_id, mensagem, reply_to_message_id=None):
         return response.message_id
     except Exception as e:
         print('Erro ao enviar mensagem para o Telegram:', e)
+
+
+async def enviar_placar_atual():
+    global last_placar_message_id
+
+    if last_placar_message_id:
+        try:
+            await bot.delete_message(chat_id=chat_id, message_id=last_placar_message_id)
+        except Exception as e:
+            print('Erro ao excluir a mensagem anterior do placar:', e)
+
+    mensagem = (
+        f"🚀 *Placar do dia:* 🟢 {greensSG + greensG1 + greensG2}  🔴 {reds}\n\n"
+        f"🎯  SG {greensSG} | G1 {greensG1} | G2 {greensG2}\n\n"
+        f"💰 *Estamos com {greensConsecutivos} Greens seguidos!*"
+    )
+    
+
+    last_placar_message_id = await enviar_mensagem_telegram(chat_id, mensagem)
+
+
+def monitor_resources():
+    # Monitorar o uso de CPU e memória
+    cpu_usage = psutil.cpu_percent(interval=1)
+    memory_info = psutil.virtual_memory()
+    print(f"CPU: {cpu_usage}% | Memoria: {memory_info.percent}%")
 
 
 lastMainMessageId  = None
@@ -73,8 +101,8 @@ async def main():
                 ultimo_numero_str = re.sub(r'x$', '', cell_result).replace(',', '.')
                 ultimo_numero = float(ultimo_numero_str)
                 ultimo_horario = cell_date
-                print(f"Resultado: {cell_result}")
-
+                print(f"\nResultado: {cell_result}")
+               
                 if ultimo_numero < 2.00:
                     menores_consecutivos += 1
                     maiores_consecutivos = 0
@@ -84,22 +112,25 @@ async def main():
                         await enviar_mensagem_telegram(chat_id, f"GREEN SG ({ultimo_numero}) ✅", lastMainMessageId)
                         greensSG += 1
                         greensConsecutivos +=1 
+                        await enviar_placar_atual()
 
                     if menores_consecutivos == qtdRepeticoes+1:
                         await enviar_mensagem_telegram(chat_id, f"GREEN G1 ({g1}) | ({ultimo_numero}) ✅", lastMainMessageId)            
                         greensG1 += 1
                         greensConsecutivos +=1  
+                        await enviar_placar_atual()
 
                     if menores_consecutivos == qtdRepeticoes+2:
                         await enviar_mensagem_telegram(chat_id, f"GREEN G2 ({g1}) | ({g2}) | ({ultimo_numero}) ✅", lastMainMessageId)
                         greensG2 += 1
                         greensConsecutivos +=1
+                        await enviar_placar_atual()
 
                     maiores_consecutivos += 1
                     menores_consecutivos = 0
 
                 if menores_consecutivos == qtdRepeticoes:
-                    lastMainMessageId = await enviar_mensagem_telegram(chat_id, f"Realizar entrada após o {ultimo_numero}")
+                    lastMainMessageId = await enviar_mensagem_telegram(chat_id, f"Realizar entrada após o {cell_result}")
 
                 if menores_consecutivos == qtdRepeticoes+1:
                     g1 = ultimo_numero
@@ -111,7 +142,9 @@ async def main():
                     await enviar_mensagem_telegram(chat_id, f"RED ({g1}) | ({g2}) | ({ultimo_numero})🔻", lastMainMessageId)
                     reds += 1
                     greensConsecutivos = 0
-                    
+
+                monitor_resources()
+
         except Exception as e:
             print(f"Erro ao acessar os dados: {e}")
 
