@@ -54,7 +54,6 @@ async def enviar_placar_atual():
 
     mensagem = (
         f"🚀 *Placar do dia:* 🟢 {greensSG + greensG1 + greensG2}  🔴 {reds}\n\n"
-        f"🎯  SG {greensSG} | G1 {greensG1} | G2 {greensG2}\n\n"
         f"💰 *Estamos com {greensConsecutivos} Greens seguidos!*"
     )
     
@@ -78,13 +77,19 @@ greensConsecutivos = 0
 greensSG = 0
 greensG1 = 0
 greensG2 = 0
+greensG3 = 0
+greensG4 = 0
+greensG5 = 0
 reds = 0
 g1 = 0
 g2 = 0
+g3 = 0
+g4 = 0
+g5 = 0
 qtdRepeticoes = 2
 
 async def main():
-    global ultimo_horario, menores_consecutivos, maiores_consecutivos, greensConsecutivos, lastMainMessageId, greensSG, greensG1, greensG2, reds, g1, g2, qtdRepeticoes
+    global ultimo_horario, menores_consecutivos, maiores_consecutivos, greensConsecutivos, lastMainMessageId, lastAvisoMessageId, greensSG, greensG1, greensG2, greensG3, greensG4, greensG5, reds, g1, g2, g3, g4, g5, qtdRepeticoes
 
     while True:
         try:
@@ -103,8 +108,10 @@ async def main():
                 ultimo_numero = float(ultimo_numero_str)
                 ultimo_horario = cell_date
                 print(f"\nResultado: {cell_result}")
+
                 if lastAvisoMessageId:
                     await bot.delete_message(chat_id=chat_id, message_id=lastAvisoMessageId)
+                    lastAvisoMessageId = None
 
                 if ultimo_numero < 2.00:
                     menores_consecutivos += 1
@@ -129,6 +136,24 @@ async def main():
                         greensConsecutivos +=1
                         await enviar_placar_atual()
 
+                    if menores_consecutivos == qtdRepeticoes+3:
+                        await enviar_mensagem_telegram(chat_id, f"GREEN G3 ({g1}) | ({g2}) | ({g3}) | ({ultimo_numero}) ✅", lastMainMessageId)
+                        greensG3 += 1
+                        greensConsecutivos +=1
+                        await enviar_placar_atual()
+
+                    if menores_consecutivos == qtdRepeticoes+4:
+                        await enviar_mensagem_telegram(chat_id, f"GREEN G4 ({g1}) | ({g2}) | ({g3}) | ({g4}) | ({ultimo_numero}) ✅", lastMainMessageId)
+                        greensG4 += 1
+                        greensConsecutivos +=1
+                        await enviar_placar_atual()
+
+                    if menores_consecutivos == qtdRepeticoes+5:
+                        await enviar_mensagem_telegram(chat_id, f"GREEN G5 ({g1}) | ({g2}) | ({g3}) | ({g4}) | ({g5}) |({ultimo_numero}) ✅", lastMainMessageId)
+                        greensG5 += 1
+                        greensConsecutivos +=1
+                        await enviar_placar_atual()
+
                     maiores_consecutivos += 1
                     menores_consecutivos = 0
 
@@ -136,16 +161,25 @@ async def main():
                     lastAvisoMessageId = await enviar_mensagem_telegram(chat_id, f"Atentos! Possível entrada 🚨")
 
                 if menores_consecutivos == qtdRepeticoes:
-                    lastMainMessageId = await enviar_mensagem_telegram(chat_id, f"Realizar entrada após o {cell_result}")
+                    lastMainMessageId = await enviar_mensagem_telegram(chat_id, f"🚀 *ENTRADA CONFIRMADA!*\n\n" f"👉 Entrar após: *{cell_result}*\n" f"💰 Sair em 2.00x\n" f"♻️ Até 5º Gales\n\n" f"[CLIQUE AQUI PARA JOGAR](https://www.playpix.com/pb/casino/game-view/806666/aviator)")
 
                 if menores_consecutivos == qtdRepeticoes+1:
                     g1 = ultimo_numero
 
                 if menores_consecutivos == qtdRepeticoes+2:
                      g2 = ultimo_numero
-
+                     
                 if menores_consecutivos == qtdRepeticoes+3:
-                    await enviar_mensagem_telegram(chat_id, f"RED ({g1}) | ({g2}) | ({ultimo_numero})🔻", lastMainMessageId)
+                     g3 = ultimo_numero
+
+                if menores_consecutivos == qtdRepeticoes+4:
+                     g4 = ultimo_numero
+
+                if menores_consecutivos == qtdRepeticoes+5:
+                     g5 = ultimo_numero
+
+                if menores_consecutivos == qtdRepeticoes+6:
+                    await enviar_mensagem_telegram(chat_id, f"RED ({g1}) | ({g2}) | ({g3}) | ({g4}) | ({g5}) | ({ultimo_numero})🔻", lastMainMessageId)
                     reds += 1
                     greensConsecutivos = 0
 
