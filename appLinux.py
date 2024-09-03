@@ -217,8 +217,5 @@ async def main():
         except Exception as e:
             print(f"Erro ao acessar os dados: {e}")
 
-        # Aguarda 1 segundo antes de verificar novamente
-        await asyncio.sleep(1)
-
 if __name__ == '__main__':
     asyncio.run(main())
