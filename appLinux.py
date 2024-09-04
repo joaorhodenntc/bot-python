@@ -65,14 +65,10 @@ async def enviar_placar_diario():
     global greensConsecutivos, greensSG, greensG1, greensG2, greensG3, greensG4, greensG5, reds, last_placar_message_id
     
     now = datetime.now()
-    print(f"Horário agora: {now}")
 
     if now.hour == 23 and now.minute == 59:
         mensagem = (
-            f"🚀 *Placar final do dia:* 🟢 {greensSG + greensG1 + greensG2 + greensG3 + greensG4 + greensG5}  🔴 {reds}\n\n"
-            f"💰 *Consecutivos hoje:* {greensConsecutivos}\n"
-            f"SG: {greensSG}, G1: {greensG1}, G2: {greensG2}, G3: {greensG3}, G4: {greensG4}, G5: {greensG5}\n"
-            f"Reds: {reds}"
+            f"📊 *RELATÓRIO DO DIA ({now.day}/{now.month}/{now.year}):\n\n* 🟢 *GREENS:* {greensSG + greensG1 + greensG2 + greensG3 + greensG4 + greensG5}\n 🔴 *REDS:* {reds}\n\n"
         )
 
         last_placar_message_id = await enviar_mensagem_telegram(chat_id, mensagem)
@@ -126,12 +122,12 @@ async def main():
                 EC.presence_of_element_located((By.CSS_SELECTOR, '.grid__row.flex.flex-1.flex-row.items-start.justify-between'))
             )
 
-            grid_row = driver.find_element(By.CSS_SELECTOR, '.grid__row.flex.flex-1.flex-row.items-start.justify-between')
-            cell_result = grid_row.find_element(By.CSS_SELECTOR, '.cell__result').text
+            grid_row = driver.find_element(By.CSS_SELECTOR, '.grid__row.flex.flex-1.flex-row.items-start.justify-between')    
             cell_date = grid_row.find_element(By.CSS_SELECTOR, '.cell__date').text
 
             if cell_date != ultimo_horario:
                 
+                cell_result = grid_row.find_element(By.CSS_SELECTOR, '.cell__result').text
                 ultimo_numero_str = re.sub(r'x$', '', cell_result).replace(',', '.')
                 ultimo_numero = float(ultimo_numero_str)
                 ultimo_horario = cell_date
@@ -216,9 +212,6 @@ async def main():
 
         except Exception as e:
             print(f"Erro ao acessar os dados: {e}")
-
-        # Aguarda 1 segundo antes de verificar novamente
-        await asyncio.sleep(1)
 
 if __name__ == '__main__':
     asyncio.run(main())
