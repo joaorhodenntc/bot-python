@@ -131,7 +131,7 @@ async def main():
                 ultimo_numero_str = re.sub(r'x$', '', cell_result).replace(',', '.')
                 ultimo_numero = float(ultimo_numero_str)
                 ultimo_horario = cell_date
-                print(f"\nResultado: {cell_result}")
+                print(f"\n{ultimo_horario} | {cell_result}")
 
                 if lastAvisoMessageId:
                     await bot.delete_message(chat_id=chat_id, message_id=lastAvisoMessageId)
