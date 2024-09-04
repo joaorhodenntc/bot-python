@@ -65,7 +65,6 @@ async def enviar_placar_diario():
     global greensConsecutivos, greensSG, greensG1, greensG2, greensG3, greensG4, greensG5, reds, last_placar_message_id
     
     now = datetime.now()
-    print(f"Horário agora: {now}")
 
     if now.hour == 23 and now.minute == 59:
         mensagem = (

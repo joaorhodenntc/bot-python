@@ -89,7 +89,7 @@ def monitor_resources():
     # Monitorar o uso de CPU e memória
     cpu_usage = psutil.cpu_percent(interval=1)
     memory_info = psutil.virtual_memory()
-    print(f"CPU: {cpu_usage}% | Memoria: {memory_info.percent}%")
+    #print(f"CPU: {cpu_usage}% | Memoria: {memory_info.percent}%")
 
 
 lastMainMessageId  = None
