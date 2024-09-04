@@ -10,6 +10,7 @@ from datetime import datetime
 import asyncio
 import re
 import psutil
+import json
 
 TOKEN = '7346261146:AAERS6EyX2kU4ATsJ0IVZPwy2or65i5uwDE'
 chat_id = '-1002235800968'
@@ -29,6 +30,14 @@ service = Service("/usr/local/bin/chromedriver")
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
 driver.get('https://www.tipminer.com/historico/playpix/aviator?limit=1&t=1724540814597&subject=filter')
+
+def atualizar_arquivo_json(ultimo_numero, ultimo_horario):
+    dados = {
+        "ultimo_numero": ultimo_numero,
+        "ultimo_horario": ultimo_horario,
+    }
+    with open('dados.json', 'w') as file:
+        json.dump(dados, file, indent=4)
 
 async def enviar_mensagem_telegram(chat_id, mensagem, reply_to_message_id=None):
     try:
@@ -131,8 +140,9 @@ async def main():
                 ultimo_numero_str = re.sub(r'x$', '', cell_result).replace(',', '.')
                 ultimo_numero = float(ultimo_numero_str)
                 ultimo_horario = cell_date
+                atualizar_arquivo_json(ultimo_numero, ultimo_horario)
                 print(f"\n{ultimo_horario} | {cell_result}")
-
+        
                 if lastAvisoMessageId:
                     await bot.delete_message(chat_id=chat_id, message_id=lastAvisoMessageId)
                     lastAvisoMessageId = None

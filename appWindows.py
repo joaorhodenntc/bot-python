@@ -10,6 +10,7 @@ from datetime import datetime
 import asyncio
 import re
 import psutil
+import json
 
 TOKEN = '7346261146:AAERS6EyX2kU4ATsJ0IVZPwy2or65i5uwDE'
 chat_id = '-1002235800968'
@@ -29,6 +30,14 @@ service = Service("C:/WebDriver/chromedriver.exe")
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
 driver.get('https://www.tipminer.com/historico/playpix/aviator?limit=1&t=1724540814597&subject=filter')
+
+def atualizar_arquivo_json(ultimo_numero, ultimo_horario):
+    dados = {
+        "ultimo_numero": ultimo_numero,
+        "ultimo_horario": ultimo_horario,
+    }
+    with open('dados.json', 'w') as file:
+        json.dump(dados, file, indent=4)
 
 async def enviar_mensagem_telegram(chat_id, mensagem, reply_to_message_id=None):
     try:
@@ -89,7 +98,7 @@ def monitor_resources():
     # Monitorar o uso de CPU e memória
     cpu_usage = psutil.cpu_percent(interval=1)
     memory_info = psutil.virtual_memory()
-    print(f"CPU: {cpu_usage}% | Memoria: {memory_info.percent}%")
+    #print(f"CPU: {cpu_usage}% | Memoria: {memory_info.percent}%")
 
 
 lastMainMessageId  = None
@@ -122,17 +131,18 @@ async def main():
                 EC.presence_of_element_located((By.CSS_SELECTOR, '.grid__row.flex.flex-1.flex-row.items-start.justify-between'))
             )
 
-            grid_row = driver.find_element(By.CSS_SELECTOR, '.grid__row.flex.flex-1.flex-row.items-start.justify-between')
-            cell_result = grid_row.find_element(By.CSS_SELECTOR, '.cell__result').text
+            grid_row = driver.find_element(By.CSS_SELECTOR, '.grid__row.flex.flex-1.flex-row.items-start.justify-between')    
             cell_date = grid_row.find_element(By.CSS_SELECTOR, '.cell__date').text
 
             if cell_date != ultimo_horario:
                 
+                cell_result = grid_row.find_element(By.CSS_SELECTOR, '.cell__result').text
                 ultimo_numero_str = re.sub(r'x$', '', cell_result).replace(',', '.')
                 ultimo_numero = float(ultimo_numero_str)
                 ultimo_horario = cell_date
-                print(f"\nResultado: {cell_result}")
-
+                atualizar_arquivo_json(ultimo_numero, ultimo_horario)
+                print(f"\n{ultimo_horario} | {cell_result}")
+        
                 if lastAvisoMessageId:
                     await bot.delete_message(chat_id=chat_id, message_id=lastAvisoMessageId)
                     lastAvisoMessageId = None
@@ -212,9 +222,6 @@ async def main():
 
         except Exception as e:
             print(f"Erro ao acessar os dados: {e}")
-
-        # Aguarda 1 segundo antes de verificar novamente
-        await asyncio.sleep(1)
 
 if __name__ == '__main__':
     asyncio.run(main())
