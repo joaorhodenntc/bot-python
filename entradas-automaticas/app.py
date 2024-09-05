@@ -47,7 +47,7 @@ async def enviar_mensagem_telegram(chat_id, mensagem, reply_to_message_id=None):
 
 def ler_dados_json():
     try:
-        with open('../dados.json', 'r') as file:
+        with open('../dados.json', 'r') as file: #caminho para o LINUX
             dados = json.load(file)
             return dados.get("ultimo_numero"), dados.get("ultimo_horario")
     except FileNotFoundError:
@@ -113,7 +113,6 @@ async def main():
         try:
             try:
                 ultimo_numero, ultimo_horario = ler_dados_json()
-                print(f"Tentou ler: {ultimo_numero}")
 
             except Exception as e:
                 print()
