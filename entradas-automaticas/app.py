@@ -15,8 +15,8 @@ TOKEN = '7346261146:AAERS6EyX2kU4ATsJ0IVZPwy2or65i5uwDE'
 chat_id = '-1002211720991'
 bot = Bot(token=TOKEN)
 
-#service = Service("C:/WebDriver/chromedriver.exe")
-service = Service("/usr/local/bin/chromedriver")
+service = Service("C:/WebDriver/chromedriver.exe")
+#service = Service("/usr/local/bin/chromedriver")
 
 chrome_options = Options()
 chrome_options.add_argument("--headless")  
@@ -28,7 +28,7 @@ chrome_options.add_argument("--ignore-ssl-errors")
 
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
-url = "https://games.playpix.com/Inner/authorization.php?partnerId=18750115&gameId=806666&language=pb&openType=fun&devicetypeid=1&exitURL=https%3A%2F%2Fwww.playpix.com%2Fpb%2Fgames&deposit_url=https%3A%2F%2Fwww.playpix.com%2Fpb%2Fgames%3Fprofile%3Dopen%26account%3Dbalance%26page%3Ddeposit&frameId=-9999291384c&logoSource=%2Flogo.png%3Fv%3D1722323127"
+url = "https://games.playpix.com/Inner/authorization.php?partnerId=18750115&gameId=806666&language=pb&openType=real&devicetypeid=1&exitURL=https%3A%2F%2Fwww.playpix.com&deposit_url=https%3A%2F%2Fwww.playpix.com%3Fprofile%3Dopen%26account%3Dbalance%26page%3Ddeposit&frameId=gameView&logoSource=%2Flogo.png%3Fv%3D1722323127&token=D53A46BCF73E5787559AC825F49D1665"
 
 
 
@@ -93,22 +93,11 @@ def apostar(valor):
 
     apostar_button.click()
 
-#SÓ PARA O DEMO
-def obter_ultimo_numero():
-    try:
-        return WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/app-root/app-game/div/div[1]/div[2]/div/div[2]/div[1]/app-stats-widget/div/div[1]/div/app-bubble-multiplier[1]/div'))
-        ).text
-    except Exception as e:
-        print("Erro ao tentar obter o último número:", str(e))
-        return None
-
 lastHorario = None
 menoresConsecutivos = 0
-ultimo_numero_visto = None #SÓ PARA O DEMO
 
 async def main():
-    global lastHorario, ultimo_numero_visto, menoresConsecutivos
+    global lastHorario, menoresConsecutivos
     
     await enviar_mensagem_telegram(chat_id, "Iniciando BOT 🚨...")
     
@@ -122,58 +111,56 @@ async def main():
 
     while True:
         try:
-            #ultimo_numero, ultimo_horario = ler_dados_json() PARA O MODO REAL
-
-            ultimo_numero_atual = obter_ultimo_numero() #SÓ PARA O DEMO
-
-            if ultimo_numero_atual != ultimo_numero_visto: #SÓ PARA O DEMO
-                ultimo_numero_visto = ultimo_numero_atual
-                ultimo_numero_str = re.sub(r'x$', '', ultimo_numero_visto).replace(',', '.')
-                lastNumber = float(ultimo_numero_str)
-                print(f"Último Número: {lastNumber}")
+            try:
+                ultimo_numero, ultimo_horario = ler_dados_json()
+            except Exception as e:
+                print()
+            if lastHorario != ultimo_horario: 
+                lastHorario = ultimo_horario
                 saldo = consultar_saldo()
+                print(f"Último Número: {ultimo_numero} | Saldo: {saldo}")
+                
           
-                if(lastNumber < 2.00):                                                                                                                                
+                if(ultimo_numero < 2.00):                                                                                                                                
                     menoresConsecutivos+=1
                 
-                if (lastNumber >= 2.00):
+                if (ultimo_numero >= 2.00):
                     
-                    if(menoresConsecutivos == 2):
-                        print(f"\nGREEN SG! {lastNumber}")
-                        await enviar_mensagem_telegram(chat_id, f"*GREEN SG! {lastNumber} ✅* Saldo Atual: {saldo}")
+                    if(menoresConsecutivos == 6):
+                        print(f"\nGREEN SG! {ultimo_numero}")
+                        await enviar_mensagem_telegram(chat_id, f"*GREEN SG! {ultimo_numero} ✅* Saldo Atual: {saldo}")
                         print(consultar_saldo())
 
-                    if(menoresConsecutivos == 3):
-                        print(f"\nGREEN G1! {lastNumber}")
-                        await enviar_mensagem_telegram(chat_id, f"*GREEN G1! {lastNumber} ✅* Saldo Atual: {saldo}")
+                    if(menoresConsecutivos == 7):
+                        print(f"\nGREEN G1! {ultimo_numero}")
+                        await enviar_mensagem_telegram(chat_id, f"*GREEN G1! {ultimo_numero} ✅* Saldo Atual: {saldo}")
                         print(consultar_saldo())
 
-                    if(menoresConsecutivos == 4):
-                        print(f"\nGREEN G2! {lastNumber}")
-                        await enviar_mensagem_telegram(chat_id, f"*GREEN G2! {lastNumber} ✅* Saldo Atual: {saldo}")
+                    if(menoresConsecutivos == 8):
+                        print(f"\nGREEN G2! {ultimo_numero}")
+                        await enviar_mensagem_telegram(chat_id, f"*GREEN G2! {ultimo_numero} ✅* Saldo Atual: {saldo}")
                         print(consultar_saldo())
 
                     menoresConsecutivos = 0
 
-                if(menoresConsecutivos == 2):
+                if(menoresConsecutivos == 6):
                     print(f"\nRealizando Aposta...")
                     await enviar_mensagem_telegram(chat_id, f"*Realizando Entrada..* Saldo Atual: {saldo}")
-                    apostar(10)
+                    apostar(1)
 
-                if(menoresConsecutivos == 3):
+                if(menoresConsecutivos == 7):
                     print(f"\nRealizando Gale 1...")
                     await enviar_mensagem_telegram(chat_id, f"*Realizando Gale 1...* Saldo Atual: {saldo}")
-                    apostar(20)
+                    apostar(1)
 
-                if(menoresConsecutivos == 4):
+                if(menoresConsecutivos == 8):
                     print(f"\nRealizando Gale 2...")
                     await enviar_mensagem_telegram(chat_id, f"*Realizando Gale 2...* Saldo Atual: {saldo}")
-                    apostar(40)
+                    apostar(2)
 
-                if(menoresConsecutivos == 5):
+                if(menoresConsecutivos == 9):
                     print(f"\nRed 🔻")
                     await enviar_mensagem_telegram(chat_id, f"*Red 🔻*  Saldo Atual: {saldo}")
-                    apostar(40)
                 
         except Exception as e:
             print("Erro ao tentar obter o resultado:", str(e))
