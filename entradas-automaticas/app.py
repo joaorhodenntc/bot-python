@@ -113,7 +113,7 @@ async def main():
         try:
             try:
                 ultimo_numero, ultimo_horario = ler_dados_json()
-                print("Tentou ler {ultimo_numero}")
+                print(f"Tentou ler: {ultimo_numero}")
 
             except Exception as e:
                 print()
