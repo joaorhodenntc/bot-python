@@ -15,11 +15,10 @@ TOKEN = '7346261146:AAERS6EyX2kU4ATsJ0IVZPwy2or65i5uwDE'
 chat_id = '-1002211720991'
 bot = Bot(token=TOKEN)
 
-#service = Service("C:/WebDriver/chromedriver.exe")
 service = Service("/usr/local/bin/chromedriver")
 
 chrome_options = Options()
-chrome_options.add_argument("--headless")  
+#chrome_options.add_argument("--headless")  
 chrome_options.add_argument("--disable-gpu")
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
@@ -28,9 +27,7 @@ chrome_options.add_argument("--ignore-ssl-errors")
 
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
-url = "https://games.playpix.com/Inner/authorization.php?partnerId=18750115&gameId=806666&language=pb&openType=real&devicetypeid=1&exitURL=https%3A%2F%2Fwww.playpix.com&deposit_url=https%3A%2F%2Fwww.playpix.com%3Fprofile%3Dopen%26account%3Dbalance%26page%3Ddeposit&frameId=gameView&logoSource=%2Flogo.png%3Fv%3D1722323127&token=D53A46BCF73E5787559AC825F49D1665"
-
-
+url = "https://games.playpix.com/Inner/authorization.php?partnerId=18750115&gameId=806666&language=pb&openType=real&devicetypeid=1&exitURL=https%3A%2F%2Fwww.playpix.com&deposit_url=https%3A%2F%2Fwww.playpix.com%3Fprofile%3Dopen%26account%3Dbalance%26page%3Ddeposit&frameId=gameView&logoSource=%2Flogo.png%3Fv%3D1722323127&token=DCFC11C6914FD210659F4CACE4376EFA"
 
 async def enviar_mensagem_telegram(chat_id, mensagem, reply_to_message_id=None):
     try:
@@ -47,51 +44,65 @@ async def enviar_mensagem_telegram(chat_id, mensagem, reply_to_message_id=None):
 
 def ler_dados_json():
     try:
-        with open('../dados.json', 'r') as file: #caminho para o LINUX
+        with open('../dados.json', 'r') as file: 
             dados = json.load(file)
             return dados.get("ultimo_numero"), dados.get("ultimo_horario")
     except FileNotFoundError:
         return None, None
 
-def consultar_saldo():
-    saldo = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/app-root/app-game/div/div[1]/div[1]/app-header/div/div[2]/div/div[1]/div/span[1]'))).text
-    return saldo
+async def consultar_saldo():
+    try:
+        saldo = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/app-root/app-game/div/div[1]/div[1]/app-header/div/div[2]/div/div[1]/div/span[1]'))).text
+        return saldo
+    except Exception as e:
+        await enviar_mensagem_telegram(chat_id, "Erro ao consultar saldo")
+        print("Erro ao consultar saldo:", str(e))
 
-def configurar_aposta():
+async def configurar_aposta():
 
-    auto_aposta = WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.XPATH, '/html/body/app-root/app-game/div/div[1]/div[2]/div/div[2]/div[3]/app-bet-controls/div/app-bet-control[1]/div/app-navigation-switcher/div/button[2]'))
-    )
+    try:
+        auto_aposta = WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.XPATH, '/html/body/app-root/app-game/div/div[1]/div[2]/div/div[2]/div[3]/app-bet-controls/div/app-bet-control[1]/div/app-navigation-switcher/div/button[2]'))
+        )
 
-    auto_aposta.click()
+        auto_aposta.click()
 
-    auto_saque = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '/html/body/app-root/app-game/div/div[1]/div[2]/div/div[2]/div[3]/app-bet-controls/div/app-bet-control[1]/div/div[3]/div[2]/div[1]/app-ui-switcher/div/span'))
-    )
-    
-    auto_saque.click()
+        auto_saque = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, '/html/body/app-root/app-game/div/div[1]/div[2]/div/div[2]/div[3]/app-bet-controls/div/app-bet-control[1]/div/div[3]/div[2]/div[1]/app-ui-switcher/div/span'))
+        )
+        
+        auto_saque.click()
 
-    input_saque = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.XPATH, '/html/body/app-root/app-game/div/div[1]/div[2]/div/div[2]/div[3]/app-bet-controls/div/app-bet-control[1]/div/div[3]/div[2]/div[2]/div/app-spinner/div/div[2]/input'))
-    )
+        input_saque = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, '/html/body/app-root/app-game/div/div[1]/div[2]/div/div[2]/div[3]/app-bet-controls/div/app-bet-control[1]/div/div[3]/div[2]/div[2]/div/app-spinner/div/div[2]/input'))
+        )
 
-    driver.execute_script("arguments[0].value = '';", input_saque)
-    input_saque.send_keys("2")
+        driver.execute_script("arguments[0].value = '';", input_saque)
+        input_saque.send_keys("2")
 
-def apostar(valor):
+    except Exception as e:
+        await enviar_mensagem_telegram(chat_id, "Erro ao configurar aposta")
+        print("Erro ao configurar aposta:", str(e))
+        
+async def apostar(valor):
 
-    input_valor = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.XPATH, '/html/body/app-root/app-game/div/div[1]/div[2]/div/div[2]/div[3]/app-bet-controls/div/app-bet-control[1]/div/div[1]/div[1]/app-spinner/div/div[2]/input'))
-    )
+    try:
+        input_valor = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, '/html/body/app-root/app-game/div/div[1]/div[2]/div/div[2]/div[3]/app-bet-controls/div/app-bet-control[1]/div/div[1]/div[1]/app-spinner/div/div[2]/input'))
+        )
 
-    driver.execute_script("arguments[0].value = '';", input_valor)
-    input_valor.send_keys(valor)
+        driver.execute_script("arguments[0].value = '';", input_valor)
+        input_valor.send_keys(valor)
 
-    apostar_button = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '/html/body/app-root/app-game/div/div[1]/div[2]/div/div[2]/div[3]/app-bet-controls/div/app-bet-control[1]/div/div[1]/div[2]/button'))
-    )
+        apostar_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, '/html/body/app-root/app-game/div/div[1]/div[2]/div/div[2]/div[3]/app-bet-controls/div/app-bet-control[1]/div/div[1]/div[2]/button'))
+        )
 
-    apostar_button.click()
+        apostar_button.click()
+
+    except Exception as e:
+        await enviar_mensagem_telegram(chat_id, "Erro ao realizar apostar")
+        print("Erro realizar aposta:", str(e))
 
 lastHorario = None
 menoresConsecutivos = 0
@@ -101,24 +112,19 @@ async def main():
     
     await enviar_mensagem_telegram(chat_id, "Iniciando BOT 🚨...")
     
-    try:
-        driver.get(url)
-        configurar_aposta()
-
-    except Exception as e:
-        print("Erro na url:", str(e))
-        await enviar_mensagem_telegram(chat_id, str(e))
+    driver.get(url)
+    await configurar_aposta()
 
     while True:
         try:
             try:
                 ultimo_numero, ultimo_horario = ler_dados_json()
-
             except Exception as e:
                 print()
+
             if lastHorario != ultimo_horario: 
                 lastHorario = ultimo_horario
-                saldo = consultar_saldo()
+                saldo = await consultar_saldo()
                 print(f"Último Número: {ultimo_numero} | Saldo: {saldo}")
                 
           
@@ -147,17 +153,17 @@ async def main():
                 if(menoresConsecutivos == 6):
                     print(f"\nRealizando Aposta...")
                     await enviar_mensagem_telegram(chat_id, f"*Realizando Entrada..* Saldo Atual: {saldo}")
-                    apostar(1)
+                    await apostar(1)
 
                 if(menoresConsecutivos == 7):
                     print(f"\nRealizando Gale 1...")
                     await enviar_mensagem_telegram(chat_id, f"*Realizando Gale 1...* Saldo Atual: {saldo}")
-                    apostar(1)
+                    await apostar(1)
 
                 if(menoresConsecutivos == 8):
                     print(f"\nRealizando Gale 2...")
                     await enviar_mensagem_telegram(chat_id, f"*Realizando Gale 2...* Saldo Atual: {saldo}")
-                    apostar(2)
+                    await apostar(2)
 
                 if(menoresConsecutivos == 9):
                     print(f"\nRed 🔻")
@@ -165,9 +171,7 @@ async def main():
                 
         except Exception as e:
             print("Erro ao tentar obter o resultado:", str(e))
-            await enviar_mensagem_telegram(chat_id, str(e))
-
-
+            await enviar_mensagem_telegram(chat_id, "Erro ao tentar obter o resultado:")
 
 if __name__ == '__main__':
     asyncio.run(main())
