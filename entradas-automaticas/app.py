@@ -27,7 +27,7 @@ chrome_options.add_argument("--ignore-ssl-errors")
 
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
-url = "https://games.playpix.com/Inner/authorization.php?partnerId=18750115&gameId=806666&language=pb&openType=real&devicetypeid=1&exitURL=https%3A%2F%2Fwww.playpix.com&deposit_url=https%3A%2F%2Fwww.playpix.com%3Fprofile%3Dopen%26account%3Dbalance%26page%3Ddeposit&frameId=gameView&logoSource=%2Flogo.png%3Fv%3D1722323127&token=DCFC11C6914FD210659F4CACE4376EFA"
+url = "https://games.playpix.com/Inner/authorization.php?partnerId=18750115&gameId=806666&language=pb&openType=fun&devicetypeid=1&exitURL=https%3A%2F%2Fwww.playpix.com%2Fpb%2Fgames&deposit_url=https%3A%2F%2Fwww.playpix.com%2Fpb%2Fgames%3Fprofile%3Dopen%26account%3Dbalance%26page%3Ddeposit&frameId=-9999cf535db&logoSource=%2Flogo.png%3Fv%3D1722323127"
 
 async def enviar_mensagem_telegram(chat_id, mensagem, reply_to_message_id=None):
     try:
