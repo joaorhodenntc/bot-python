@@ -15,8 +15,8 @@ TOKEN = '7346261146:AAERS6EyX2kU4ATsJ0IVZPwy2or65i5uwDE'
 chat_id = '-1002211720991'
 bot = Bot(token=TOKEN)
 
-#service = Service("C:/WebDriver/chromedriver.exe")
-service = Service("/usr/local/bin/chromedriver")
+service = Service("C:/WebDriver/chromedriver.exe")
+#service = Service("/usr/local/bin/chromedriver")
 
 chrome_options = Options()
 chrome_options.add_argument("--headless")  
@@ -47,7 +47,7 @@ async def enviar_mensagem_telegram(chat_id, mensagem, reply_to_message_id=None):
 
 def ler_dados_json():
     try:
-        with open('dados.json', 'r') as file:
+        with open('/dados.json', 'r') as file:
             dados = json.load(file)
             return dados.get("ultimo_numero"), dados.get("ultimo_horario")
     except FileNotFoundError:
